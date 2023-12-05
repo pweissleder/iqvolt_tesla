@@ -3,6 +3,12 @@
 
 -r requirements.txt
 
+# homeassistant.components.tesla_custom
+bs4
+
+# homeassistant.components.tesla_custom
+tenacity
+
 # homeassistant.components.aemet
 AEMET-OpenData==0.4.6
 

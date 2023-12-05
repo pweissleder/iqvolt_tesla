@@ -4,6 +4,12 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Final
 
+# Tesla_custom
+
+CONF_WRAPPER_API_KEY: Final = "11112d24-db81-3548-b761-835a473ccb24"
+CONF_BASE_URL: Final = "https://5.75.190.138:34567/"
+
+
 APPLICATION_NAME: Final = "HomeAssistant"
 MAJOR_VERSION: Final = 2023
 MINOR_VERSION: Final = 12
