@@ -230,6 +230,7 @@ FLOWS = {
         "ipma",
         "ipp",
         "iqvia",
+        "iqvolt_tesla_custom",
         "islamic_prayer_times",
         "iss",
         "isy994",

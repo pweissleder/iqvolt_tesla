@@ -624,6 +624,7 @@ build.json @home-assistant/supervisor
 /tests/components/ipp/ @ctalkington
 /homeassistant/components/iqvia/ @bachya
 /tests/components/iqvia/ @bachya
+/homeassistant/components/iqvolt_tesla_custom/ @pweissleder
 /homeassistant/components/irish_rail_transport/ @ttroy50
 /homeassistant/components/islamic_prayer_times/ @engrbm87
 /tests/components/islamic_prayer_times/ @engrbm87

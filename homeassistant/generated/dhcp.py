@@ -255,6 +255,21 @@ DHCP: list[dict[str, str | bool]] = [
         "hostname": "zentrios-*",
     },
     {
+        "domain": "iqvolt_tesla_custom",
+        "hostname": "tesla_*",
+        "macaddress": "4CFCAA*",
+    },
+    {
+        "domain": "iqvolt_tesla_custom",
+        "hostname": "tesla_*",
+        "macaddress": "044EAF*",
+    },
+    {
+        "domain": "iqvolt_tesla_custom",
+        "hostname": "tesla_*",
+        "macaddress": "98ED5C*",
+    },
+    {
         "domain": "isy994",
         "registered_devices": True,
     },
