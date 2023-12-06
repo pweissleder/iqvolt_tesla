@@ -12,6 +12,7 @@
       "step": {
           "user": {
               "data": {
+                  "username":"Username",
                   "base_url": "BaseURL",
                   "wrapper_api_key": "Wrapper Api Key"
               },

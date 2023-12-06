@@ -5,7 +5,7 @@ import logging
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
-
+    CONF_USERNAME,
 )
 
 from homeassistant.core import callback
@@ -45,18 +45,19 @@ class TeslaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize the tesla flow."""
         self.wrapper_api_key = None
+        self.username = None
         self.base_url = None
 
     async def async_step_import(self, import_config):
         """Import a config entry from configuration.yaml."""
-        return await self.async_step(import_config)
+        return await self.async_step_user(import_config)
 
-    async def async_step(self, user_input=None):
+    async def async_step_user(self, user_input=None):
         """Handle the start of the config flow."""
         errors = {}
 
         if user_input is not None:
-            existing_entry = self._async_entry_for_base_url(user_input[CONF_BASE_URL])
+            existing_entry = self._async_entry_for_username(user_input[CONF_USERNAME])
             if existing_entry:
                 return self.async_abort(reason="already_configured")
 
@@ -65,7 +66,7 @@ class TeslaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Used for only forcing cars awake on initial setup in async_setup_entry
                 info.update({"initial_setup": True})
             except CannotConnect:
-                errors["base"] = "cannot_connect"
+                errors["base"] = "cannot_connect - car sleeping"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
 
@@ -78,11 +79,11 @@ class TeslaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return self.async_abort(reason="reauth_successful")
 
                 return self.async_create_entry(  # Neuer Eintrag
-                    title=user_input[CONF_BASE_URL], data=info
+                    title=user_input[CONF_USERNAME], data=info
                 )
 
         return self.async_show_form(
-            step_id="Setup Wrapper API",
+            step_id="user",
             data_schema=self._async_schema(),
             errors=errors,
             description_placeholders={},
@@ -98,11 +99,9 @@ class TeslaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def _async_schema(self):
         """Fetch schema with defaults."""
-        return vol.Schema(
-            {
+        return vol.Schema({
+                vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_BASE_URL): str,
-            },
-            {
                 vol.Required(CONF_WRAPPER_API_KEY): str,
             }
         )
@@ -115,6 +114,15 @@ class TeslaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return entry
         return None
 
+    @callback
+    def _async_entry_for_username(self, username):
+        """Find an existing entry for a username."""
+        for entry in self._async_current_entries():
+            if entry.data.get(CONF_USERNAME) == username:
+                return entry
+        return None
+
+
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle a option flow for Tesla."""
@@ -126,7 +134,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None): # Sollte passen
         """Handle options flow."""
         if user_input is not None:
-            return self.async_create_entry(title="Optional", data=user_input)
+            return self.async_create_entry(title="", data=user_input)
 
         data_schema = vol.Schema(
             {
@@ -178,6 +186,11 @@ async def validate_input(hass: core.HomeAssistant, data) -> dict: # Sollte Passe
           #  polling_policy=data.get(CONF_POLLING_POLICY, DEFAULT_POLLING_POLICY),
         )
         await controller.connect()
+        config[CONF_BASE_URL] = BASE_URL
+        config[CONF_WRAPPER_API_KEY] = WRAPPER_API_KEY
+        config["domain"] = DOMAIN
+
+
 
     except IncompleteCredentials as ex:
         _LOGGER.error("Authentication error: %s %s", ex.message, ex)

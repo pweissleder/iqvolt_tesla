@@ -12,6 +12,7 @@ from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
     EVENT_HOMEASSISTANT_CLOSE,
+    CONF_USERNAME,
 )
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
@@ -50,9 +51,9 @@ CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 def _async_configured_base_url(hass):
     """Return a set of configured Tesla emails."""
     return {
-        entry.data["base_url"]
+        entry.data[CONF_USERNAME]
         for entry in hass.config_entries.async_entries(DOMAIN)
-        if "base_url" in entry.data
+        if CONF_USERNAME in entry.data
     }
 
 
@@ -76,11 +77,11 @@ async def async_setup(hass, base_config):
     if not config:
         return True
 
-    base_url = BASE_URL
+    base_url = BASE_URL  #hier eigl. input values os config
     wrapper_api_key = WRAPPER_API_KEY
     scan_interval = DEFAULT_SCAN_INTERVAL
 
-    if base_url in _async_configured_base_url(hass):
+    if "Testing_test" in _async_configured_base_url(hass):
         try:
             info = await validate_input(hass, config)
         except (CannotConnect, InvalidAuth):
@@ -88,6 +89,7 @@ async def async_setup(hass, base_config):
         _update_entry(
             base_url,
             data={
+                CONF_USERNAME: "Testing_test",
                 "base_url": base_url,
                 "wrapper_api_key": wrapper_api_key
             },
@@ -98,14 +100,15 @@ async def async_setup(hass, base_config):
             hass.config_entries.flow.async_init(
                 DOMAIN,
                 context={"source": SOURCE_IMPORT},
-                data={
+               data={
+                CONF_USERNAME: "Testing_test",
                 "base_url": base_url,
                 "wrapper_api_key": wrapper_api_key
             },
             )
         )
         hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN][base_url] = {CONF_SCAN_INTERVAL: scan_interval}
+        hass.data[DOMAIN]["Testing_test"] = {CONF_SCAN_INTERVAL: scan_interval}
 
     return True
 
@@ -120,32 +123,30 @@ async def async_setup_entry(hass, config_entry):
     async_client = httpx.AsyncClient(
         timeout=60, verify=SSL_CONTEXT  # Removed user context header
     )
-    base_url = config_entry.title
+    username = config_entry.title
 
     if not hass.data[DOMAIN]:
         async_setup_services(hass)
 
     if (
-        base_url in hass.data[DOMAIN]
-        and CONF_SCAN_INTERVAL in hass.data[DOMAIN][base_url]
+        username in hass.data[DOMAIN]
+        and CONF_SCAN_INTERVAL in hass.data[DOMAIN][username]
     ):
-        scan_interval = hass.data[DOMAIN][base_url][CONF_SCAN_INTERVAL]
+        scan_interval = hass.data[DOMAIN][username][CONF_SCAN_INTERVAL]
         hass.config_entries.async_update_entry(
             config_entry, options={CONF_SCAN_INTERVAL: scan_interval}
         )
-        hass.data[DOMAIN].pop(base_url)
+        hass.data[DOMAIN].pop(username)
 
     try:
         controller = TeslaAPI(
             async_client,
-            wrapper_api_key=config.get(),
+            wrapper_api_key= WRAPPER_API_KEY,
             polling_policy=config_entry.options.get(
                 CONF_POLLING_POLICY, DEFAULT_POLLING_POLICY
             ),
         )
-        result = await controller.connect(
-            include_vehicles=config.get(CONF_INCLUDE_VEHICLES),
-        )
+        result = await controller.connect()
 
     except IncompleteCredentials as ex:
         await async_client.aclose()

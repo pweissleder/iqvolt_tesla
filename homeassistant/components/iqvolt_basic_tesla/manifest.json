@@ -1,0 +1,14 @@
+{
+  "domain": "iqvolt_basic_tesla",
+  "name": "IQvolt Basic Tesla",
+  "codeowners": ["@pweissleder"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/iqvolt_basic_tesla",
+  "homekit": {},
+  "integration_type": "helper",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}
