@@ -1,27 +1,26 @@
 """Support for Tesla cars."""
 import asyncio
-import logging
 from datetime import timedelta
 from functools import partial
 from http import HTTPStatus
+import logging
 
 import async_timeout
 import httpx
-from .tesla_custom_lib.controller import Controller as TeslaAPI
-from .tesla_custom_lib.exceptions import IncompleteCredentials, TeslaException
 
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
+    CONF_BASE_URL,
     CONF_SCAN_INTERVAL,
-    EVENT_HOMEASSISTANT_CLOSE,
     CONF_WRAPPER_API_KEY,
-    CONF_BASE_URL
+    EVENT_HOMEASSISTANT_CLOSE,
 )
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
 from .config_flow import CannotConnect, InvalidAuth, validate_input
 from .const import (
     CONF_INCLUDE_VEHICLES,
@@ -36,11 +35,23 @@ from .const import (
     PLATFORMS,
 )
 from .services import async_setup_services, async_unload_services
+from .tesla_custom_lib.controller import Controller as TeslaAPI
+from .tesla_custom_lib.exceptions import IncompleteCredentials, TeslaException
 from .util import SSL_CONTEXT
 
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
+
+
+@callback
+def _async_configured_base_url(hass):
+    """Return a set of configured Tesla emails."""
+    return {
+        entry.data["base_url"]
+        for entry in hass.config_entries.async_entries(DOMAIN)
+        if "base_url" in entry.data
+    }
 
 
 async def async_setup(hass, base_config):
@@ -63,11 +74,11 @@ async def async_setup(hass, base_config):
     if not config:
         return True
 
-    base_url = config[CONF_BASE_URL]
-    wrapper_api_key = config[CONF_WRAPPER_API_KEY]
-    scan_interval = config[CONF_SCAN_INTERVAL]
+    base_url = CONF_BASE_URL
+    wrapper_api_key = CONF_WRAPPER_API_KEY
+    scan_interval = CONF_SCAN_INTERVAL
 
-    if base_url in _async_configured_base_urls(hass):
+    if base_url in _async_configured_base_url(hass):
         try:
             info = await validate_input(hass, config)
         except (CannotConnect, InvalidAuth):
@@ -101,14 +112,18 @@ async def async_setup_entry(hass, config_entry):
     config = config_entry.data
     # Because users can have multiple accounts, we always
     # create a new session so they have separate cookies
-    async_client = httpx.AsyncClient(timeout=60, verify=SSL_CONTEXT   # Removed user context header
+    async_client = httpx.AsyncClient(
+        timeout=60, verify=SSL_CONTEXT  # Removed user context header
     )
     base_url = config_entry.title
 
     if not hass.data[DOMAIN]:
         async_setup_services(hass)
 
-    if base_url in hass.data[DOMAIN] and CONF_SCAN_INTERVAL in hass.data[DOMAIN][base_url]:
+    if (
+        base_url in hass.data[DOMAIN]
+        and CONF_SCAN_INTERVAL in hass.data[DOMAIN][base_url]
+    ):
         scan_interval = hass.data[DOMAIN][base_url][CONF_SCAN_INTERVAL]
         hass.config_entries.async_update_entry(
             config_entry, options={CONF_SCAN_INTERVAL: scan_interval}
@@ -176,7 +191,6 @@ async def async_setup_entry(hass, config_entry):
     )
     config_entry.async_on_unload(_async_create_close_task)
 
-
     try:
         if config_entry.data.get("initial_setup"):
             wake_if_asleep = True
@@ -241,7 +255,7 @@ async def async_setup_entry(hass, config_entry):
     hass.data[DOMAIN][config_entry.entry_id] = {
         "controller": controller,
         "coordinators": coordinators,
-        "cars": cars
+        "cars": cars,
     }
     _LOGGER.debug("Connected to the Tesla API")
 
@@ -349,11 +363,10 @@ class TeslaDataUpdateCoordinator(DataUpdateCoordinator):
         except TeslaException as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
-
         # Sollte deactive sein
+
     def async_update_listeners_debounced(self, delay_since_last=0.1, max_delay=1.0):
-        """
-        Debounced version of async_update_listeners.
+        """Debounced version of async_update_listeners.
 
         This function cancels the previous task (if any) and creates a new one.
 
@@ -378,8 +391,7 @@ class TeslaDataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("New debounce task scheduled")
 
     async def _debounced(self, max_delay, *args):
-        """
-        Debounce method that waits a certain delay since the last update.
+        """Debounce method that waits a certain delay since the last update.
 
         This method ensures that async_update_listeners is called at least every max_delay seconds.
 
