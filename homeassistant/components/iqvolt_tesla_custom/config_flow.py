@@ -5,8 +5,7 @@ import logging
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
-    CONF_BASE_URL,
-    CONF_WRAPPER_API_KEY
+
 )
 
 from homeassistant.core import callback
@@ -23,12 +22,15 @@ from .const import (
     ATTR_POLLING_POLICY_NORMAL,
     CONF_POLLING_POLICY,
     CONF_WAKE_ON_START,
-
     DEFAULT_POLLING_POLICY,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_WAKE_ON_START,
     DOMAIN,
     MIN_SCAN_INTERVAL,
+    CONF_BASE_URL,
+    CONF_WRAPPER_API_KEY,
+    BASE_URL,
+    WRAPPER_API_KEY,
 )
 from .util import SSL_CONTEXT
 

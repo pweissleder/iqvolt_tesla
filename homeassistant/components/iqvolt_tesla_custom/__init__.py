@@ -10,9 +10,7 @@ import httpx
 
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
-    CONF_BASE_URL,
     CONF_SCAN_INTERVAL,
-    CONF_WRAPPER_API_KEY,
     EVENT_HOMEASSISTANT_CLOSE,
 )
 from homeassistant.core import callback
@@ -33,6 +31,10 @@ from .const import (
     DOMAIN,
     MIN_SCAN_INTERVAL,
     PLATFORMS,
+    CONF_BASE_URL,
+    CONF_WRAPPER_API_KEY,
+    BASE_URL,
+    WRAPPER_API_KEY,
 )
 from .services import async_setup_services, async_unload_services
 from .tesla_custom_lib.controller import Controller as TeslaAPI
@@ -74,9 +76,9 @@ async def async_setup(hass, base_config):
     if not config:
         return True
 
-    base_url = CONF_BASE_URL
-    wrapper_api_key = CONF_WRAPPER_API_KEY
-    scan_interval = CONF_SCAN_INTERVAL
+    base_url = BASE_URL
+    wrapper_api_key = WRAPPER_API_KEY
+    scan_interval = DEFAULT_SCAN_INTERVAL
 
     if base_url in _async_configured_base_url(hass):
         try:
@@ -86,8 +88,8 @@ async def async_setup(hass, base_config):
         _update_entry(
             base_url,
             data={
-                CONF_BASE_URL: base_url,
-                CONF_WRAPPER_API_KEY: info[CONF_WRAPPER_API_KEY],
+                "base_url": base_url,
+                "wrapper_api_key": wrapper_api_key
             },
             options={CONF_SCAN_INTERVAL: scan_interval},
         )
@@ -96,7 +98,10 @@ async def async_setup(hass, base_config):
             hass.config_entries.flow.async_init(
                 DOMAIN,
                 context={"source": SOURCE_IMPORT},
-                data={CONF_BASE_URL: base_url, CONF_WRAPPER_API_KEY: wrapper_api_key},
+                data={
+                "base_url": base_url,
+                "wrapper_api_key": wrapper_api_key
+            },
             )
         )
         hass.data.setdefault(DOMAIN, {})
@@ -133,7 +138,7 @@ async def async_setup_entry(hass, config_entry):
     try:
         controller = TeslaAPI(
             async_client,
-            wrapper_api_key=config.get(CONF_WRAPPER_API_KEY),
+            wrapper_api_key=config.get(),
             polling_policy=config_entry.options.get(
                 CONF_POLLING_POLICY, DEFAULT_POLLING_POLICY
             ),

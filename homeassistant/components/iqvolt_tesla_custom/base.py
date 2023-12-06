@@ -7,6 +7,7 @@ from homeassistant.util import slugify
 
 from . import TeslaDataUpdateCoordinator
 from .const import ATTRIBUTION, DOMAIN
+from .tesla_custom_lib.car import TeslaCar
 
 
 class TeslaBaseEntity(CoordinatorEntity[TeslaDataUpdateCoordinator]):

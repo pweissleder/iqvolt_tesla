@@ -5,9 +5,15 @@ CONF_INCLUDE_VEHICLES = "include_vehicles"
 CONF_POLLING_POLICY = "polling_policy"
 CONF_WAKE_ON_START = "enable_wake_on_start"
 CONF_ENABLE_TESLAMATE = "enable_teslamate"
-CONF_WRAPPER_API_KEY = "11112d24-db81-3548-b761-835a473ccb24"
 
-CONF_BASE_URL = "https://5.75.190.138:34567/"
+WRAPPER_API_KEY = "11112d24-db81-3548-b761-835a473ccb24"
+BASE_URL = "https://5.75.190.138:34567/"
+
+
+CONF_WRAPPER_API_KEY = "wrapper_api_key"
+CONF_BASE_URL = "base_url"
+
+
 DOMAIN = "iqvolt_tesla_custom"
 ATTRIBUTION = "Data provided by Tesla"
 DATA_LISTENER = "listener"
