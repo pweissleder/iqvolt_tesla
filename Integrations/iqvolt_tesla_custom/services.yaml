@@ -1,0 +1,54 @@
+#  SPDX-License-Identifier: Apache-2.0
+api:
+  fields:
+    # Key of the field
+    base_url:
+    # Description of the field
+    # Example value that can be passed for this field
+      example: "1.2.3.4:5000"
+      required: false
+      selector:
+        text:
+
+    command:
+      # Description of the field
+      # Example value that can be passed for this field
+      example: "WAKE_UP"
+      required: true
+      selector:
+        text:
+
+    parameters:
+      # Description of the field
+      example: '{"path_vars": {"vehicle_id":"1"}, "wake_if_asleep":True}'
+      required: false
+      selector:
+        object:
+
+polling_interval:
+  fields:
+    base_url:
+      # Description of the field
+      # Example value that can be passed for this field
+      example: "1.2.3.4:5000"
+      required: true
+      selector:
+        text:
+    vin:
+      # Description of the field
+
+      # Example value that can be passed for this field
+      example: "5YJSA11111111111"
+      required: false
+      selector:
+        text:
+    scan_interval:
+      example: 660
+      required: true
+      default: 660
+      selector:
+        number:
+          min: -1
+          max: 3600
+          step: 30
+          unit_of_measurement: "s"

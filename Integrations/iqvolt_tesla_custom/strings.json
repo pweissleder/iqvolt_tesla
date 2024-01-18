@@ -1,0 +1,73 @@
+{
+  "config": {
+      "abort": {
+          "already_configured": "Account is already configured",
+          "reauth_successful": "Re-authentication was successful"
+      },
+      "error": {
+          "already_configured": "Account is already configured",
+          "cannot_connect": "Failed to connect",
+          "invalid_auth": "Invalid authentication"
+      },
+      "step": {
+          "user": {
+              "data": {
+                  "username":"Username",
+                  "base_url": "BaseURL",
+                  "wrapper_api_key": "Wrapper Api Key"
+              },
+              "description": "Use 'Auth App for Tesla' on iOS, 'Tesla Tokens' on Android\r\n or 'teslafi.com' to create a refresh token and enter it below.\r\n Vehicle(s) are forced awake for setup.",
+              "title": "Tesla - Configuration"
+          }
+      }
+  },
+  "options": {
+      "step": {
+          "init": {
+              "data": {
+                  "enable_teslamate": "Sync Data from TeslaMate via MQTT",
+                  "enable_wake_on_start": "Force cars awake on startup",
+                  "scan_interval": "Seconds between polling"
+              }
+          }
+      }
+  },
+  "services": {
+      "api": {
+          "description": "Run an API command using controller.api",
+          "fields": {
+              "command": {
+                  "description": "Command to run. See https://github.com/zabuldon/teslajsonpy/blob/master/teslajsonpy/endpoints.json",
+                  "name": "Command"
+              },
+              "base_url": {
+                  "description": "BaseURL address (optional if only one account)",
+                  "name": "BaseURL"
+              },
+              "parameters": {
+                  "description": "Parameters in a dictionary. `path_vars` replace variables in endpoints.json path. All others are passed directly to controller.api. For command parameters see https://tesla-api.timdorr.com/vehicle/commands.",
+                  "name": "Parameters"
+              }
+          },
+          "name": "Run API Command"
+      },
+      "polling_interval": {
+          "description": "Set the polling interval for the Tesla API",
+          "fields": {
+              "base_url": {
+                  "description": "BaseURL address (optional if only one account)",
+                  "name": "BaseURL address"
+              },
+              "scan_interval": {
+                  "description": "Number of seconds between each poll.  See https://github.com/alandtse/tesla/wiki/Polling-policy more information.",
+                  "name": "Interval (seconds)"
+              },
+              "vin": {
+                  "description": "Vehicle VIN (if not provided then default polling interval will be updated)",
+                  "name": "Vehicle VIN"
+              }
+          },
+          "name": "Set Polling Interval"
+      }
+  }
+}

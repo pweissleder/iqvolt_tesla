@@ -1,0 +1,12 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant_container_2
+    image: "homeassistant/home-assistant:latest"
+    volumes:
+      - /Users/pascalweissleder/Desktop/ha_container:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8123:8123"
